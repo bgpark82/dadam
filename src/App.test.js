@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import App from './App';
 
 describe('App Component', () => {
@@ -42,6 +42,29 @@ describe('App Component', () => {
 
       fireEvent.change(textareaElement, { target: { value: '' } });
       expect(buttonElement).toBeDisabled();
+    });
+  });
+
+  describe('API Call', () => {
+    jest.useFakeTimers();
+
+    test('3-1. should show loading indicator and then hide it', () => {
+      render(<App />);
+      const buttonElement = screen.getByRole('button', { name: /improve my answer/i });
+      const textareaElement = screen.getByPlaceholderText(/paste your answer here.../i);
+
+      fireEvent.change(textareaElement, { target: { value: 'hello' } });
+      fireEvent.click(buttonElement);
+
+      expect(screen.getByText(/improving.../i)).toBeInTheDocument();
+      expect(buttonElement).toBeDisabled();
+
+      act(() => {
+        jest.runAllTimers();
+      });
+
+      expect(screen.getByText(/improve my answer/i)).toBeInTheDocument();
+      expect(screen.queryByText(/improving.../i)).not.toBeInTheDocument();
     });
   });
 });
