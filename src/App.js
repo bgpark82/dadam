@@ -33,14 +33,23 @@ function App() {
   const handleSubmit = async () => {
     setIsLoading(true);
     setError(null);
+    setDiffs([]);
 
     setTimeout(() => {
-      const improved = 'This is an improved answer.';
-      const dmp = new DiffMatchPatch();
-      const diff = dmp.diff_main(text, improved);
-      dmp.diff_cleanupSemantic(diff);
-      setDiffs(diff);
-      setIsLoading(false);
+      try {
+        if (text === 'error') {
+          throw new Error('Something went wrong');
+        }
+        const improved = 'This is an improved answer.';
+        const dmp = new DiffMatchPatch();
+        const diff = dmp.diff_main(text, improved);
+        dmp.diff_cleanupSemantic(diff);
+        setDiffs(diff);
+      } catch (e) {
+        setError('Something went wrong. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     }, 1000);
   };
 
@@ -62,7 +71,9 @@ function App() {
         {isLoading ? 'Improving...' : 'Improve My Answer'}
       </button>
 
-      {diffs.length > 0 && !isLoading && (
+      {error && <div className="error-message">{error}</div>}
+
+      {diffs.length > 0 && !isLoading && !error && (
         <div className="results-container">
           <div className="panel">
             <h3>Improved Text</h3>

@@ -75,4 +75,30 @@ describe('App Component', () => {
       expect(panel).toBeInTheDocument();
     });
   });
+
+  describe('API Call and Error State', () => {
+    jest.useFakeTimers();
+
+    test('4-1, 4-2. should show error message on failed API call', () => {
+      render(<App />);
+      const buttonElement = screen.getByRole('button', { name: /improve my answer/i });
+      const textareaElement = screen.getByPlaceholderText(/paste your answer here.../i);
+
+      fireEvent.change(textareaElement, { target: { value: 'error' } });
+      fireEvent.click(buttonElement);
+
+      // Check for loading state
+      expect(screen.getByText(/improving.../i)).toBeInTheDocument();
+      expect(buttonElement).toBeDisabled();
+
+      // Fast-forward timers
+      act(() => {
+        jest.runAllTimers();
+      });
+
+      // Check for error message
+      expect(screen.queryByText(/improving.../i)).not.toBeInTheDocument();
+      expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument();
+    });
+  });
 });
