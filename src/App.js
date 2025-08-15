@@ -76,6 +76,10 @@ function App() {
       {diffs.length > 0 && !isLoading && !error && (
         <div className="results-container">
           <div className="panel">
+            <h3>Original Text</h3>
+            <p>{text}</p>
+          </div>
+          <div className="panel">
             <h3>Improved Text</h3>
             <DiffViewer diffs={diffs} />
           </div>

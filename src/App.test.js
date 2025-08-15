@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, within } from '@testing-library/react';
 import App from './App';
 
 describe('App Component', () => {
@@ -48,7 +48,7 @@ describe('App Component', () => {
   describe('API Call and Success State', () => {
     jest.useFakeTimers();
 
-    test('3-1, 3-2, 3-3, 3-4, 3-5. should show loading, then display highlighted results', () => {
+    test('3-1, 3-2, 3-3, 3-4, 3-5. should show loading, then display two panels with results', () => {
       render(<App />);
       const buttonElement = screen.getByRole('button', { name: /improve my answer/i });
       const textareaElement = screen.getByPlaceholderText(/paste your answer here.../i);
@@ -69,10 +69,15 @@ describe('App Component', () => {
       // 3-3: Check that loading indicator is hidden
       expect(screen.queryByText(/improving.../i)).not.toBeInTheDocument();
 
-      // 3-4 & 3-5: Check for results
+      // 3-4 & 3-5: Check for results in two panels
+      expect(screen.getByText('Original Text')).toBeInTheDocument();
+      const originalPanel = screen.getByText('Original Text').closest('.panel');
+      expect(originalPanel).toBeInTheDocument();
+      expect(within(originalPanel).getByText(originalText)).toBeInTheDocument();
+
       expect(screen.getByText('Improved Text')).toBeInTheDocument();
-      const panel = screen.getByText('Improved Text').closest('.panel');
-      expect(panel).toBeInTheDocument();
+      const improvedPanel = screen.getByText('Improved Text').closest('.panel');
+      expect(improvedPanel).toBeInTheDocument();
     });
   });
 
