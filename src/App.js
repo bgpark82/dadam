@@ -10,7 +10,6 @@ function App() {
   const handleSubmit = async () => {
     setIsLoading(true);
     setError(null);
-    setImprovedText('');
 
     // This is where the API call will be made.
     // For now, we'll simulate it with a timeout.
@@ -37,6 +36,19 @@ function App() {
       >
         {isLoading ? 'Improving...' : 'Improve My Answer'}
       </button>
+
+      {improvedText && !isLoading && (
+        <div className="results-container">
+          <div className="panel">
+            <h3>Original Text</h3>
+            <p>{text}</p>
+          </div>
+          <div className="panel">
+            <h3>Improved Text</h3>
+            <p>{improvedText}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
