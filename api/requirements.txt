@@ -6,3 +6,4 @@ mangum
 pytest
 python-dotenv
 google-generativeai
+httpx

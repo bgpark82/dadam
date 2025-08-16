@@ -1,9 +1,14 @@
 import os
+import logging
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import google.generativeai as genai
+
+# Configure logging
+logging.basicConfig(filename='api.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 load_dotenv()
 
@@ -29,16 +34,28 @@ genai.configure(api_key=gemini_api_key)
 model = genai.GenerativeModel('gemini-pro')
 
 class TextInput(BaseModel):
-    text: str
+    text: str = Field(..., min_length=1)
 
 @app.post("/api/improve-text")
 async def improve_text(text_input: TextInput):
+    logging.info(f"Received request with text: {text_input.text}")
     try:
         prompt = f"Rewrite the following text for a job interview, focusing on a confident and professional tone:\n\n{text_input.text}"
+        logging.info(f"Generated prompt: {prompt}")
+        
         response = model.generate_content(prompt)
+        
+        if response.prompt_feedback.block_reason:
+            logging.warning(f"Content blocked: {response.prompt_feedback.block_reason}")
+            raise HTTPException(status_code=400, detail=f"Content blocked: {response.prompt_feedback.block_reason}")
+
+        logging.info(f"Successfully generated response: {response.text}")
         return {"improved_text": response.text}
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error(f"An error occurred: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 @app.get("/")
 async def read_root():

@@ -44,3 +44,19 @@ This is the backend API for the Dadam application.
     ```
 
     The API will be available at `http://localhost:8000`.
+
+## Stopping the server
+
+To stop the development server, press `Ctrl+C` in the terminal where the server is running.
+
+## Testing with cURL
+
+You can test the `/api/improve-text` endpoint using `curl`:
+
+```bash
+curl -X POST "http://localhost:8000/api/improve-text" \
+-H "Content-Type: application/json" \
+-d '{"text": "hello world"}'
+```
+
+This will send a POST request to the endpoint with the specified text and should return a JSON response with the improved text.
