@@ -46,9 +46,18 @@ describe('App Component', () => {
   });
 
   describe('API Call and Success State', () => {
-    jest.useFakeTimers();
+    beforeEach(() => {
+      jest.spyOn(window, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({ improved_text: 'This is an improved answer.' }),
+      });
+    });
 
-    test('3-1, 3-2, 3-3, 3-4, 3-5. should show loading, then display two panels with results', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test('3-1, 3-2, 3-3, 3-4, 3-5. should show loading, then display two panels with results', async () => {
       render(<App />);
       const buttonElement = screen.getByRole('button', { name: /improve my answer/i });
       const textareaElement = screen.getByPlaceholderText(/paste your answer here.../i);
@@ -61,16 +70,13 @@ describe('App Component', () => {
       expect(screen.getByText(/improving.../i)).toBeInTheDocument();
       expect(buttonElement).toBeDisabled();
 
-      // Fast-forward timers
-      act(() => {
-        jest.runAllTimers();
-      });
+      // Wait for the results
+      await screen.findByText('Original Text');
 
       // 3-3: Check that loading indicator is hidden
       expect(screen.queryByText(/improving.../i)).not.toBeInTheDocument();
 
       // 3-4 & 3-5: Check for results in two panels
-      expect(screen.getByText('Original Text')).toBeInTheDocument();
       const originalPanel = screen.getByText('Original Text').closest('.panel');
       expect(originalPanel).toBeInTheDocument();
       expect(within(originalPanel).getByText(originalText)).toBeInTheDocument();
@@ -82,24 +88,30 @@ describe('App Component', () => {
   });
 
   describe('API Call and Error State', () => {
-    jest.useFakeTimers();
+    beforeEach(() => {
+      jest.spyOn(window, 'fetch').mockResolvedValue({
+        ok: false,
+      });
+    });
 
-    test('4-1, 4-2. should show error message on failed API call', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test('4-1, 4-2. should show error message on failed API call', async () => {
       render(<App />);
       const buttonElement = screen.getByRole('button', { name: /improve my answer/i });
       const textareaElement = screen.getByPlaceholderText(/paste your answer here.../i);
 
-      fireEvent.change(textareaElement, { target: { value: 'error' } });
+      fireEvent.change(textareaElement, { target: { value: 'some text' } });
       fireEvent.click(buttonElement);
 
       // Check for loading state
       expect(screen.getByText(/improving.../i)).toBeInTheDocument();
       expect(buttonElement).toBeDisabled();
 
-      // Fast-forward timers
-      act(() => {
-        jest.runAllTimers();
-      });
+      // Wait for the error message
+      await screen.findByText('Something went wrong. Please try again.');
 
       // Check for error message
       expect(screen.queryByText(/improving.../i)).not.toBeInTheDocument();

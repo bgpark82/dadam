@@ -35,22 +35,30 @@ function App() {
     setError(null);
     setDiffs([]);
 
-    setTimeout(() => {
-      try {
-        if (text === 'error') {
-          throw new Error('Something went wrong');
-        }
-        const improved = 'This is an improved answer.';
-        const dmp = new DiffMatchPatch();
-        const diff = dmp.diff_main(text, improved);
-        dmp.diff_cleanupSemantic(diff);
-        setDiffs(diff);
-      } catch (e) {
-        setError('Something went wrong. Please try again.');
-      } finally {
-        setIsLoading(false);
+    try {
+      const response = await fetch('http://localhost:8000/api/improve-text', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Something went wrong');
       }
-    }, 1000);
+
+      const data = await response.json();
+      const improved = data.improved_text;
+      const dmp = new DiffMatchPatch();
+      const diff = dmp.diff_main(text, improved);
+      dmp.diff_cleanupSemantic(diff);
+      setDiffs(diff);
+    } catch (e) {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
