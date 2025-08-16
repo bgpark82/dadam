@@ -1,0 +1,14 @@
+# IDE
+.idea/
+
+# Frontend
+web/node_modules/
+web/build/
+
+# Backend
+api/venv/
+api/.env
+api/__pycache__/
+api/*.pyc
+api/*.pyo
+api/*.pyd
