@@ -51,6 +51,8 @@ To stop the development server, press `Ctrl+C` in the terminal where the server 
 
 ## Testing with cURL
 
+### Improve text
+
 You can test the `/api/improve-text` endpoint using `curl`:
 
 ```bash
@@ -60,3 +62,11 @@ curl -X POST "http://localhost:8000/api/improve-text" \
 ```
 
 This will send a POST request to the endpoint with the specified text and should return a JSON response with the improved text.
+
+### List available models
+
+You can list the available models using `curl`:
+
+```bash
+curl http://localhost:8000/api/models
+```

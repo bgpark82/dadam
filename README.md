@@ -51,8 +51,11 @@ The backend API will be tested to ensure it adheres to the following contract:
 - **4. External Service Error Case:**
     - **4-1.** In the event that the external Google Gemini API is unavailable or returns an error, the endpoint should return a `503 Service Unavailable` status to the client.
 
-- **5. AI Prompting Logic:**
-    - **5-1.** The service must create a prompt for the Gemini model that specifically instructs it to rewrite text for a job interview context, focusing on a confident and professional tone. (This can be verified by logging the prompt during tests).
+- **5. AI Model Selection:**
+    - **5-1.** The service must dynamically select the first available Gemini model that supports content generation.
+
+- **6. AI Prompting Logic:**
+    - **6-1.** The service must create a prompt for the Gemini model that specifically instructs it to rewrite text for a job interview context, focusing on a confident and professional tone. (This can be verified by logging the prompt during tests).
 
 ## 3. Technology Stack
 
