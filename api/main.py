@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import google.generativeai as genai
+from supabase_client import supabase
 
 # Configure logging
 logging.basicConfig(filename='api.log', level=logging.INFO,
@@ -51,8 +52,24 @@ async def improve_text(text_input: TextInput):
             logging.warning(f"Content blocked: {response.prompt_feedback.block_reason}")
             raise HTTPException(status_code=400, detail=f"Content blocked: {response.prompt_feedback.block_reason}")
 
-        logging.info(f"Successfully generated response: {response.text}")
-        return {"improved_text": response.text}
+        improved_text = response.text
+        logging.info(f"Successfully generated response: {improved_text}")
+
+        # Save to Supabase
+        dummy_user_id = os.getenv("DUMMY_USER_ID")
+        if dummy_user_id:
+            try:
+                supabase.table('history').insert({
+                    'original_text': text_input.text,
+                    'improved_text': improved_text,
+                    'user_id': dummy_user_id
+                }).execute()
+                logging.info(f"Saved history for user {dummy_user_id}")
+            except Exception as e:
+                logging.error(f"Failed to save history to Supabase: {str(e)}", exc_info=True)
+                # We don't want to fail the whole request if logging fails, so we'll just log the error.
+
+        return {"improved_text": improved_text}
     except HTTPException as e:
         raise e
     except Exception as e:

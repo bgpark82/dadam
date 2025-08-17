@@ -57,10 +57,27 @@ The backend API will be tested to ensure it adheres to the following contract:
 - **6. AI Prompting Logic:**
     - **6-1.** The service must create a prompt for the Gemini model that specifically instructs it to rewrite text for a job interview context, focusing on a confident and professional tone. (This can be verified by logging the prompt during tests).
 
+### 2.3. Database Requirements (Supabase)
+
+The application will integrate with Supabase for database and authentication services.
+
+- **1. Data Storage:**
+    - **1-1.** A `history` table must be created to store records of text improvement requests. It should have the following columns:
+        - `id` (UUID, Primary Key)
+        - `user_id` (UUID, Foreign Key to `auth.users.id`)
+        - `original_text` (TEXT)
+        - `improved_text` (TEXT)
+        - `created_at` (TIMESTAMPTZ, defaults to the current time)
+
+- **2. API Integration:**
+    - **2-1.** The backend service must securely manage Supabase project URL and API keys.
+    - **2-2.** The backend must use the Supabase client library to interact with the database.
+
 ## 3. Technology Stack
 
 - **Frontend:** React
 - **Backend:** Python with FastAPI
+- **Database:** Supabase
 - **AI Model:** Google Gemini
 
 ## 4. Future Vision
