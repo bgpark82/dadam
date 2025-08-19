@@ -64,6 +64,21 @@
   text-align: left;
 }
 
+.panel p {
+  white-space: pre-wrap; /* Preserve whitespace and wrap text */
+}
+
+.diff-deleted {
+  background-color: #ffebe9;
+  color: #c00;
+  text-decoration: line-through;
+}
+
+.diff-inserted {
+  background-color: #e6ffed;
+  color: #0b0;
+}
+
 .error-message {
   margin-top: 20px;
   color: red;

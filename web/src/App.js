@@ -1,26 +1,43 @@
+
 import React, { useState } from 'react';
 import DiffMatchPatch from 'diff-match-patch';
 import './App.css';
 
-const DiffViewer = ({ diffs }) => {
+// A component to render the original text with deletions highlighted
+const OriginalTextViewer = ({ diffs }) => {
   return (
-    <div>
+    <p>
       {diffs.map(([op, text], index) => {
-        const style = {
-          backgroundColor:
-            op === DiffMatchPatch.DIFF_INSERT
-              ? '#e6ffed'
-              : op === DiffMatchPatch.DIFF_DELETE
-              ? '#ffebe9'
-              : 'transparent',
-        };
+        if (op === DiffMatchPatch.DIFF_INSERT) {
+          return null; // Don't show insertions in the original text view
+        }
+        const className = op === DiffMatchPatch.DIFF_DELETE ? 'diff-deleted' : '';
         return (
-          <span key={index} style={style}>
+          <span key={index} className={className}>
             {text}
           </span>
         );
       })}
-    </div>
+    </p>
+  );
+};
+
+// A component to render the improved text with insertions highlighted
+const ImprovedTextViewer = ({ diffs }) => {
+  return (
+    <p>
+      {diffs.map(([op, text], index) => {
+        if (op === DiffMatchPatch.DIFF_DELETE) {
+          return null; // Don't show deletions in the improved text view
+        }
+        const className = op === DiffMatchPatch.DIFF_INSERT ? 'diff-inserted' : '';
+        return (
+          <span key={index} className={className}>
+            {text}
+          </span>
+        );
+      })}
+    </p>
   );
 };
 
@@ -29,11 +46,13 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [diffs, setDiffs] = useState([]);
+  const [originalText, setOriginalText] = useState('');
 
   const handleSubmit = async () => {
     setIsLoading(true);
     setError(null);
     setDiffs([]);
+    setOriginalText(text); // Keep a copy of the original text
 
     try {
       const response = await fetch('http://localhost:8000/api/improve-text', {
@@ -85,11 +104,11 @@ function App() {
         <div className="results-container">
           <div className="panel">
             <h3>Original Text</h3>
-            <p>{text}</p>
+            <OriginalTextViewer diffs={diffs} />
           </div>
           <div className="panel">
             <h3>Improved Text</h3>
-            <DiffViewer diffs={diffs} />
+            <ImprovedTextViewer diffs={diffs} />
           </div>
         </div>
       )}

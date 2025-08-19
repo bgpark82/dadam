@@ -1,121 +1,107 @@
-import { render, screen, fireEvent, act, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from './App';
 
+// Mocking fetch
+global.fetch = jest.fn();
+
 describe('App Component', () => {
+  beforeEach(() => {
+    fetch.mockClear();
+  });
+
   describe('Initial State', () => {
-    beforeEach(() => {
+    test('1-1. should render a text input area and a submit button', () => {
       render(<App />);
+      expect(screen.getByPlaceholderText(/paste your answer here.../i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /improve my answer/i })).toBeInTheDocument();
     });
 
-    test('should render a text input area', () => {
-      const textareaElement = screen.getByPlaceholderText(/paste your answer here.../i);
-      expect(textareaElement).toBeInTheDocument();
-    });
-
-    test('should render a disabled submit button', () => {
-      const buttonElement = screen.getByRole('button', { name: /improve my answer/i });
-      expect(buttonElement).toBeInTheDocument();
-      expect(buttonElement).toBeDisabled();
+    test('1-2. should render the submit button in a disabled state initially', () => {
+      render(<App />);
+      expect(screen.getByRole('button', { name: /improve my answer/i })).toBeDisabled();
     });
   });
 
   describe('User Interaction', () => {
-    beforeEach(() => {
+    test('2-1. enables submit button when user types', () => {
       render(<App />);
+      const textarea = screen.getByPlaceholderText(/paste your answer here.../i);
+      fireEvent.change(textarea, { target: { value: 'Some text' } });
+      expect(screen.getByRole('button', { name: /improve my answer/i })).toBeEnabled();
     });
 
-    test('2-1. should enable the submit button when text is entered', () => {
-      const textareaElement = screen.getByPlaceholderText(/paste your answer here.../i);
-      const buttonElement = screen.getByRole('button', { name: /improve my answer/i });
-
-      fireEvent.change(textareaElement, { target: { value: 'hello' } });
-
-      expect(buttonElement).toBeEnabled();
-    });
-
-    test('2-2. should disable the submit button when text is cleared', () => {
-      const textareaElement = screen.getByPlaceholderText(/paste your answer here.../i);
-      const buttonElement = screen.getByRole('button', { name: /improve my answer/i });
-
-      fireEvent.change(textareaElement, { target: { value: 'hello' } });
-      expect(buttonElement).toBeEnabled();
-
-      fireEvent.change(textareaElement, { target: { value: '' } });
-      expect(buttonElement).toBeDisabled();
+    test('2-2. disables submit button when text is cleared', () => {
+      render(<App />);
+      const textarea = screen.getByPlaceholderText(/paste your answer here.../i);
+      fireEvent.change(textarea, { target: { value: 'Some text' } });
+      fireEvent.change(textarea, { target: { value: '' } });
+      expect(screen.getByRole('button', { name: /improve my answer/i })).toBeDisabled();
     });
   });
 
-  describe('API Call and Success State', () => {
-    beforeEach(() => {
-      jest.spyOn(window, 'fetch').mockResolvedValue({
+  describe('API Call and State Changes', () => {
+    test('3-1 to 3-5. handles API call, loading, and displays diff results correctly', async () => {
+      const originalText = 'I is a boy.';
+      const improvedText = 'I am a boy.';
+
+      fetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ improved_text: 'This is an improved answer.' }),
+        json: () => Promise.resolve({ improved_text: improvedText }),
       });
-    });
 
-    afterEach(() => {
-      jest.restoreAllMocks();
-    });
-
-    test('3-1, 3-2, 3-3, 3-4, 3-5. should show loading, then display two panels with results', async () => {
       render(<App />);
-      const buttonElement = screen.getByRole('button', { name: /improve my answer/i });
-      const textareaElement = screen.getByPlaceholderText(/paste your answer here.../i);
-      const originalText = 'Hello World';
 
-      fireEvent.change(textareaElement, { target: { value: originalText } });
-      fireEvent.click(buttonElement);
+      const textarea = screen.getByPlaceholderText(/paste your answer here.../i);
+      const button = screen.getByRole('button', { name: /improve my answer/i });
 
-      // 3-2: Check for loading indicator
+      fireEvent.change(textarea, { target: { value: originalText } });
+      fireEvent.click(button);
+
+      // 3-2. Loading state is shown
       expect(screen.getByText(/improving.../i)).toBeInTheDocument();
-      expect(buttonElement).toBeDisabled();
+      expect(button).toBeDisabled();
 
-      // Wait for the results
-      await screen.findByText('Original Text');
+      // Wait for the results to appear
+      await waitFor(() => expect(screen.getByText('Original Text')).toBeInTheDocument());
 
-      // 3-3: Check that loading indicator is hidden
+      // 3-3. Loading state is hidden
       expect(screen.queryByText(/improving.../i)).not.toBeInTheDocument();
 
-      // 3-4 & 3-5: Check for results in two panels
-      const originalPanel = screen.getByText('Original Text').closest('.panel');
-      expect(originalPanel).toBeInTheDocument();
-      expect(within(originalPanel).getByText(originalText)).toBeInTheDocument();
+      // 3-4 & 3-5. Panels with highlighted diffs are shown
+      const originalPanel = screen.getByText('Original Text').parentElement;
+      const improvedPanel = screen.getByText('Improved Text').parentElement;
 
-      expect(screen.getByText('Improved Text')).toBeInTheDocument();
-      const improvedPanel = screen.getByText('Improved Text').closest('.panel');
-      expect(improvedPanel).toBeInTheDocument();
-    });
-  });
+      // Check Original Text Panel
+      const deletedPart = originalPanel.querySelector('.diff-deleted');
+      expect(deletedPart).toBeInTheDocument();
+      expect(deletedPart.textContent).toBe('is');
+      // Check that the common parts are still there
+      expect(originalPanel.textContent).toContain('I');
+      expect(originalPanel.textContent).toContain('a boy.');
 
-  describe('API Call and Error State', () => {
-    beforeEach(() => {
-      jest.spyOn(window, 'fetch').mockResolvedValue({
-        ok: false,
-      });
-    });
-
-    afterEach(() => {
-      jest.restoreAllMocks();
+      // Check Improved Text Panel
+      const insertedPart = improvedPanel.querySelector('.diff-inserted');
+      expect(insertedPart).toBeInTheDocument();
+      expect(insertedPart.textContent).toBe('am');
+      expect(improvedPanel.textContent).toContain('I');
+      expect(improvedPanel.textContent).toContain('a boy.');
     });
 
-    test('4-1, 4-2. should show error message on failed API call', async () => {
+    test('4-1, 4-2. handles API error state', async () => {
+      fetch.mockRejectedValueOnce(new Error('API failure'));
+
       render(<App />);
-      const buttonElement = screen.getByRole('button', { name: /improve my answer/i });
-      const textareaElement = screen.getByPlaceholderText(/paste your answer here.../i);
 
-      fireEvent.change(textareaElement, { target: { value: 'some text' } });
-      fireEvent.click(buttonElement);
+      const textarea = screen.getByPlaceholderText(/paste your answer here.../i);
+      const button = screen.getByRole('button', { name: /improve my answer/i });
 
-      // Check for loading state
-      expect(screen.getByText(/improving.../i)).toBeInTheDocument();
-      expect(buttonElement).toBeDisabled();
+      fireEvent.change(textarea, { target: { value: 'Some text' } });
+      fireEvent.click(button);
 
-      // Wait for the error message
-      await screen.findByText('Something went wrong. Please try again.');
+      // Wait for error message
+      await waitFor(() => expect(screen.getByText(/something went wrong/i)).toBeInTheDocument());
 
-      // Check for error message
       expect(screen.queryByText(/improving.../i)).not.toBeInTheDocument();
-      expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument();
     });
   });
 });
