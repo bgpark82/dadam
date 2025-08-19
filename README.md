@@ -101,7 +101,7 @@ Branches should be named using the following format:
     - `fix`: A bug fix
     - `chore`: Routine tasks, maintenance, or dependency updates
     - `refactor`: Code changes that neither fix a bug nor add a feature
-    - `docs`: Documentation-only changes
+    - `doc`: Documentation-only changes
 - **ticket-id:** The ID from the task tracker (e.g., DADM-001).
 - **short-description:** A brief, kebab-case description of the change.
 
@@ -114,7 +114,7 @@ Commit messages should follow the Conventional Commits specification. The basic 
 ` <type>(<scope>): <subject> `
 
 - **type:** Same as the branch prefixes (`feat`, `fix`, `chore`, `refactor`, `docs`).
-- **scope:** The part of the codebase being changed (e.g., `frontend`, `backend`, `ci`, `db`).
+- **scope:** The ticket number from the task tracker (e.g., `DADM-001`).
 - **subject:** A concise, imperative-mood description of the change.
 
-**Example:** `feat(frontend): implement diff view for text comparison`
+**Example:** `feat(DADM-001): implement diff view for text comparison`
