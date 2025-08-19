@@ -85,3 +85,36 @@ The application will integrate with Supabase for database and authentication ser
 - **User Accounts:** Introduce user accounts to allow users to save their history and track progress.
 - **Monetization:** Implement a freemium model where free users have a token/usage limit, and paid users have unlimited access.
 - **Expanded Features:** Potentially support more languages, different interview types (technical, behavioral), or analyze spoken audio.
+
+## 5. Contributing
+
+To ensure consistency and clarity across the project, please adhere to the following conventions for branching and commits.
+
+### Branch Naming
+
+Branches should be named using the following format:
+
+` <type>/<ticket-id>-<short-description> `
+
+- **type:** The type of change being made. Must be one of:
+    - `feat`: A new feature
+    - `fix`: A bug fix
+    - `chore`: Routine tasks, maintenance, or dependency updates
+    - `refactor`: Code changes that neither fix a bug nor add a feature
+    - `docs`: Documentation-only changes
+- **ticket-id:** The ID from the task tracker (e.g., DADM-001).
+- **short-description:** A brief, kebab-case description of the change.
+
+**Example:** `feat/DADM-001-update-split-view`
+
+### Commit Messages
+
+Commit messages should follow the Conventional Commits specification. The basic format is:
+
+` <type>(<scope>): <subject> `
+
+- **type:** Same as the branch prefixes (`feat`, `fix`, `chore`, `refactor`, `docs`).
+- **scope:** The part of the codebase being changed (e.g., `frontend`, `backend`, `ci`, `db`).
+- **subject:** A concise, imperative-mood description of the change.
+
+**Example:** `feat(frontend): implement diff view for text comparison`
