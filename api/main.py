@@ -77,6 +77,18 @@ async def improve_text(text_input: TextInput):
         print(f"An error occurred: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
+@app.get("/api/history")
+async def get_history():
+    dummy_user_id = os.getenv("DUMMY_USER_ID")
+    if not dummy_user_id:
+        raise HTTPException(status_code=500, detail="DUMMY_USER_ID not found in .env file")
+
+    try:
+        response = supabase.table('history').select('*').eq('user_id', dummy_user_id).order('created_at', desc=True).execute()
+        return response.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/models")
 async def list_models():
     try:
