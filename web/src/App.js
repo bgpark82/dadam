@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DiffMatchPatch from 'diff-match-patch';
 import './App.css';
+import History from './History';
 
 // A component to render the original text with deletions highlighted
 const OriginalTextViewer = ({ diffs }) => {
@@ -47,6 +48,21 @@ function App() {
   const [error, setError] = useState(null);
   const [diffs, setDiffs] = useState([]);
   const [originalText, setOriginalText] = useState('');
+  const [history, setHistory] = useState([]);
+
+  const fetchHistory = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/history');
+      if (!response.ok) {
+        throw new Error('Something went wrong');
+      }
+      const data = await response.json();
+      setHistory(data);
+    } catch (e) {
+      // For now, we'll just log the error
+      console.error('Could not fetch history.');
+    }
+  };
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -73,6 +89,7 @@ function App() {
       const diff = dmp.diff_main(text, improved);
       dmp.diff_cleanupSemantic(diff);
       setDiffs(diff);
+      fetchHistory(); // Fetch history after successful improvement
     } catch (e) {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -80,38 +97,45 @@ function App() {
     }
   };
 
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
   return (
     <div className="app-container">
-      <h1 className="app-title">Dadam</h1>
-      <h2 className="app-subtitle">Refine your interview answers</h2>
-      <textarea
-        className="text-area"
-        placeholder="Paste your answer here..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      <button
-        className="submit-button"
-        disabled={text.length === 0 || isLoading}
-        onClick={handleSubmit}
-      >
-        {isLoading ? 'Improving...' : 'Improve My Answer'}
-      </button>
+      <div className="main-panel">
+        <h1 className="app-title">Dadam</h1>
+        <h2 className="app-subtitle">Refine your interview answers</h2>
+        <textarea
+          className="text-area"
+          placeholder="Paste your answer here..."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <button
+          className="submit-button"
+          disabled={text.length === 0 || isLoading}
+          onClick={handleSubmit}
+        >
+          {isLoading ? 'Improving...' : 'Improve My Answer'}
+        </button>
 
-      {error && <div className="error-message">{error}</div>}
+        {error && <div className="error-message">{error}</div>}
 
-      {diffs.length > 0 && !isLoading && !error && (
-        <div className="results-container">
-          <div className="panel">
-            <h3>Original Text</h3>
-            <OriginalTextViewer diffs={diffs} />
+        {diffs.length > 0 && !isLoading && !error && (
+          <div className="results-container">
+            <div className="panel">
+              <h3>Original Text</h3>
+              <OriginalTextViewer diffs={diffs} />
+            </div>
+            <div className="panel">
+              <h3>Improved Text</h3>
+              <ImprovedTextViewer diffs={diffs} />
+            </div>
           </div>
-          <div className="panel">
-            <h3>Improved Text</h3>
-            <ImprovedTextViewer diffs={diffs} />
-          </div>
-        </div>
-      )}
+        )}
+      </div>
+      <History history={history} />
     </div>
   );
 }
