@@ -89,6 +89,33 @@
   cursor: not-allowed;
 }
 
+.button-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.record-button {
+  padding: 12px 25px;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #dc3545;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.record-button:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.timer {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
 .results-container {
   display: flex;
   justify-content: space-between;

@@ -24,7 +24,7 @@ This is the backend API for the Dadam application.
 3.  **Install the dependencies:**
 
     ```bash
-    pip install -r requirements.txt
+    pip3 install -r requirements.txt
     ```
 
 4.  **Create a `.env` file:**
