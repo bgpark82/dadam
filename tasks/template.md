@@ -37,22 +37,32 @@
 
 ### 4.1. Frontend Requirements (React)
 
-- **Given** [a specific context or state], **when** [a user action occurs], **then** [the expected outcome should happen].
-- *Example: **Given** the user is on the new `/history` page, **when** the page loads, **then** it should make a `GET` request to `/api/history`.*
-- *Example: **Given** the API has returned a list of 5 history items, **when** the data is processed, **then** 5 history cards should be rendered on the screen.*
+- **1. Category Name:**
+    - **1-1.** Given [a specific context or state], when [a user action occurs], then [the expected outcome should happen].
+- *Example: **1. Layout and Initial State:***
+    - ***1-1.** Given the user is on the new `/history` page, when the page loads, then it should make a `GET` request to `/api/history`.*
+    - ***1-2.** Given the API has returned a list of 5 history items, when the data is processed, then 5 history cards should be rendered on the screen.*
 
 ### 4.2. Backend Requirements (Python/FastAPI)
 
-- **Given** [a specific request], **when** [the API endpoint is called], **then** [the expected response should be returned].
-- *Example: **It must** expose a `GET /api/history` endpoint.*
-- *Example: **Given** a valid `user_id` in the request, **it must** return a `200 OK` status with a JSON array of history items from the database.*
-- *Example: **Given** no `user_id` is provided, **it must** return a `401 Unauthorized` error.*
+- **1. Category Name:**
+    - **1-1.** It must [describe a requirement].
+    - **1-2.** Given [a specific request], when [the API endpoint is called], then [the expected response should be returned].
+- *Example: **1. Endpoint Definition:***
+    - ***1-1.** It must expose a `GET /api/history` endpoint.*
+- *Example: **2. Success Case:***
+    - ***2-1.** Given a valid `user_id` in the request, it must return a `200 OK` status with a JSON array of history items from the database.*
+- *Example: **3. Error Cases:***
+    - ***3-1.** Given no `user_id` is provided, it must return a `401 Unauthorized` error.*
 
 ### 4.3. Database Requirements (Supabase)
 
-- **It must** [describe any required schema changes or data interactions].
-- *Example: The `history` table must include a `is_deleted` boolean column, defaulting to `false`.*
-- *Example: When a user requests to delete a history item, the corresponding row's `is_deleted` flag must be set to `true`.*
+- **1. Schema:**
+    - **1-1.** It must [describe any required schema changes or data interactions].
+- *Example: **1. Schema:***
+    - ***1-1.** The `history` table must include a `is_deleted` boolean column, defaulting to `false`.*
+- *Example: **2. Data Integrity:***
+    - ***2-1.** When a user requests to delete a history item, the corresponding row's `is_deleted` flag must be set to `true`.*
 
 ---
 
